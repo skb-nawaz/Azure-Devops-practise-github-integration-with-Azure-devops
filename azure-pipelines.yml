@@ -31,3 +31,9 @@ steps:
       targetPath: 'playwright-report'
       artifact: 'playwright-html-report'
       publishLocation: 'pipeline'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/junt-playwright-report.xml'
+      testRunTitle: 'junit reporter'
