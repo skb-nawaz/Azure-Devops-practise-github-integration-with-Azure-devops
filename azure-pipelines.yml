@@ -22,3 +22,12 @@ steps:
 
   - script: npx playwright test
     displayName: "Start execution from github repo"
+
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Playwright HTML Report'
+    condition: always()
+    inputs:
+      targetPath: 'playwright-report'
+      artifact: 'playwright-html-report'
+      publishLocation: 'pipeline'
