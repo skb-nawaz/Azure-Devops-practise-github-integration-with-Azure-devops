@@ -1,0 +1,24 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: UseNode@1
+    inputs:
+      version: "25.x"
+
+  - script: npm ci
+    displayName: "Install playwright deps"
+
+  - script: npx playwright install --with-deps
+    displayName: "Install playwright browsers"
+
+  - script: npx playwright test
+    displayName: "Start execution"
