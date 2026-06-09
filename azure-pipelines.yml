@@ -20,7 +20,7 @@ steps:
   - script: npx playwright install --with-deps
     displayName: "Install playwright browsers"
 
-  - script: npx playwright test
+  - script: npx playwright test --project=$(Browsers) --grep=$(tagName)
     displayName: "Start execution from github repo"
 
 
