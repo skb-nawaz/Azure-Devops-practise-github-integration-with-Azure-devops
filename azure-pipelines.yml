@@ -33,6 +33,7 @@ steps:
       publishLocation: 'pipeline'
 
   - task: PublishTestResults@2
+    condition: always()
     inputs:
       testResultsFormat: 'JUnit'
       testResultsFiles: '**/junt-playwright-report.xml'
