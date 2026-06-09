@@ -21,4 +21,4 @@ steps:
     displayName: "Install playwright browsers"
 
   - script: npx playwright test
-    displayName: "Start execution"
+    displayName: "Start execution from github repo"
