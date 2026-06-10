@@ -7,7 +7,7 @@
 #  - main
 
 schedules:
-- cron: "*/3 * * * *"
+- cron: "10 3 * * *"
   displayName: "Every 3 Minutes Pipeline Trigger"
   branches:
     include:
