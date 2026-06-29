@@ -6,7 +6,9 @@ on:
   push:
     branches:
       - feature/two-pipeline-defect-framework
-
+  pull_request:
+    branches:
+      - main
 jobs:
   defects:
     runs-on: ubuntu-latest
