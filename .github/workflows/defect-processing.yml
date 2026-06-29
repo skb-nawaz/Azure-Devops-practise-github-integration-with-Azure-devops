@@ -5,8 +5,13 @@ on:
     inputs:
       runId:
         description: "Regression Pipeline Run ID"
-        required: true
+        required: false
+        default: "28372728117"
         type: string
+
+  push:
+    branches:
+      - feature/two-pipeline-defect-framework
 
 permissions:
   actions: read
