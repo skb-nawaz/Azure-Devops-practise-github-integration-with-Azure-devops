@@ -6,7 +6,7 @@ on:
       runId:
         description: "Regression Pipeline Run ID"
         required: false
-        default: "28372728117"
+        default: "28373624640"
         type: string
 
   push:
@@ -37,9 +37,10 @@ jobs:
       - name: Download Regression Artifacts
         uses: dawidd6/action-download-artifact@v9
         with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            run_id: ${{ github.event.inputs.runId || '28373624640' }}
-            name: regression-artifacts
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          run_id: ${{ github.event.inputs.runId || '28373624640' }}
+          name: regression-artifacts
+          path: regression-download
 
       - name: Print Files
         run: |
@@ -49,6 +50,13 @@ jobs:
           echo ""
           echo "Downloaded Files:"
           ls -R
+
+      # Temporary fix so approve-bugs.ts can run
+      - name: Create approve.json
+        run: |
+          mkdir -p candidate-bugs
+          echo '{"approved":["Practice Test 1","Practice Test 5"]}' > candidate-bugs/approve.json
+          cat candidate-bugs/approve.json
 
       - name: Approve Bugs
         run: npx tsx scripts/approve-bugs.ts
