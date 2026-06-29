@@ -36,30 +36,50 @@ for (const suite of report.suites || []) {
         totalFailed++;
       }
 
-      if (lastResult?.status === "failed") {
-        const key = `${spec.title}-${spec.file}-${spec.line}`;
+      if (lastResult?.status !== "failed") {
+        continue;
+      }
 
-        if (!bugMap.has(key)) {
-          bugMap.set(key, {
-            title: spec.title,
-            browsers: [],
-            status: "Needs Review",
-            severity: "Medium",
-            generatedAt: new Date().toISOString(),
-            buildId:
-              process.env.BUILD_BUILDID || process.env.GITHUB_RUN_ID || "local",
-            retry: lastResult.retry,
-            file: spec.file,
-            line: spec.line,
-            error: cleanError(lastResult.error?.message),
-            attachments: lastResult.attachments || [],
+      const key = `${spec.title}-${spec.file}-${spec.line}`;
+
+      if (!bugMap.has(key)) {
+        bugMap.set(key, {
+          title: spec.title,
+          browsers: [],
+          status: "Needs Review",
+          severity: "Medium",
+          generatedAt: new Date().toISOString(),
+          buildId:
+            process.env.BUILD_BUILDID || process.env.GITHUB_RUN_ID || "local",
+          retry: lastResult.retry,
+          file: spec.file,
+          line: spec.line,
+          error: cleanError(lastResult.error?.message),
+          attachments: [],
+        });
+      }
+
+      const bug = bugMap.get(key);
+
+      // Add browser
+      if (!bug.browsers.includes(test.projectName)) {
+        bug.browsers.push(test.projectName);
+      }
+
+      // Add attachments for this browser
+      for (const attachment of lastResult.attachments || []) {
+        const exists = bug.attachments.some(
+          (a: any) =>
+            a.browser === test.projectName && a.path === attachment.path,
+        );
+
+        if (!exists) {
+          bug.attachments.push({
+            browser: test.projectName,
+            name: attachment.name,
+            contentType: attachment.contentType,
+            path: attachment.path,
           });
-        }
-
-        const bug = bugMap.get(key);
-
-        if (!bug.browsers.includes(test.projectName)) {
-          bug.browsers.push(test.projectName);
         }
       }
     }
@@ -68,7 +88,7 @@ for (const suite of report.suites || []) {
 
 const candidateBugs = Array.from(bugMap.values());
 
-// Create summary
+// Summary
 let summary = `
 # Regression Failure Summary
 
@@ -129,7 +149,7 @@ fs.mkdirSync("./candidate-bugs", {
   recursive: true,
 });
 
-// Create markdown bug reports
+// Create markdown bug files
 for (const bug of candidateBugs) {
   const fileName = bug.title.replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-");
 
@@ -137,7 +157,7 @@ for (const bug of candidateBugs) {
     ? bug.attachments
         .map(
           (a: any) =>
-            `- ${a.name}
+            `- [${a.browser}] ${a.name}
   ${a.path}`,
         )
         .join("\n")
@@ -201,7 +221,7 @@ Manual Review Required before creating an actual defect.
   fs.writeFileSync(`./candidate-bugs/${fileName}.md`, content);
 }
 
-// Save JSON files
+// Save files
 fs.writeFileSync(
   "./candidate-bugs/candidate-bugs.json",
   JSON.stringify(candidateBugs, null, 2),

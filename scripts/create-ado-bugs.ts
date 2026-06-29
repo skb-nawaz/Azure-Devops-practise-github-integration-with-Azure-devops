@@ -5,7 +5,7 @@ import path from "path";
 const DRY_RUN = process.env.DRY_RUN === "true";
 
 const bugs = JSON.parse(
-  fs.readFileSync("./candidate-bugs/candidate-bugs.json", "utf8"),
+  fs.readFileSync("./candidate-bugs/approved-bugs.json", "utf8"),
 );
 
 const org = process.env.ADO_ORG!;
