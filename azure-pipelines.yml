@@ -3,46 +3,44 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-#trigger:
-#  - main
-
-schedules:
-- cron: "10 3 * * *"
-  displayName: "Every 3 Minutes Pipeline Trigger"
-  branches:
-    include:
-    - main
-  always: true  
+trigger:
+  - main
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
+  # Install Node
   - task: UseNode@1
     inputs:
       version: "25.x"
 
+  # Install npm dependencies
   - script: npm ci
-    displayName: "Install playwright deps"
+    displayName: "Install Playwright Dependencies"
 
+  # Install Playwright Browsers
   - script: npx playwright install --with-deps
-    displayName: "Install playwright browsers"
+    displayName: "Install Playwright Browsers"
 
-  - script: npx playwright test --project=$(Browsers) --grep=$(tagName)
+  - script: npx playwright test
     displayName: "Start execution from github repo"
 
 
   - task: PublishPipelineArtifact@1
-    displayName: 'Publish Playwright HTML Report'
+    displayName: "Publish Test Results"
     condition: always()
     inputs:
-      targetPath: 'playwright-report'
-      artifact: 'playwright-html-report'
-      publishLocation: 'pipeline'
+      targetPath: "test-results"
+      artifact: "test-results"
+      publishLocation: "pipeline"
 
+  # Publish JUnit Results
   - task: PublishTestResults@2
+    displayName: "Publish JUnit Results"
     condition: always()
     inputs:
-      testResultsFormat: 'JUnit'
-      testResultsFiles: '**/junt-playwright-report.xml'
-      testRunTitle: 'junit reporter'
+      testResultsFormat: "JUnit"
+      testResultsFiles: "**/junt-playwright-report.xml"
+      testRunTitle: "Playwright JUnit Results"
+      failTaskOnFailedTests: false
