@@ -38,7 +38,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v9
         with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
-            run_id: ${{ github.event.inputs.runId || '28372728117' }}
+            run_id: ${{ github.event.inputs.runId || '28373624640' }}
             name: regression-artifacts
 
       - name: Print Files
