@@ -237,3 +237,8 @@ fs.writeFileSync(
 console.log("\nCandidate Bugs Generated Successfully\n");
 
 console.log(JSON.stringify(dashboard, null, 2));
+
+/* 
+console.log("\nCandidate Bugs Generated Successfully\n");
+
+console.log(JSON.stringify(dashboard, null, 2)); */

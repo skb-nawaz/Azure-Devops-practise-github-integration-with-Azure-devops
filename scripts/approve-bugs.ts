@@ -2,7 +2,10 @@ import fs from "fs";
 
 // Read all candidate bugs
 const candidateBugs = JSON.parse(
-  fs.readFileSync("./candidate-bugs/candidate-bugs.json", "utf8"),
+  fs.readFileSync(
+    "./regression-download/candidate-bugs/candidate-bugs.json",
+    "utf8",
+  ),
 );
 
 // Read approvals from approve.json
