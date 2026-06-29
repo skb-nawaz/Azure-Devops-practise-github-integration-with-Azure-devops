@@ -49,3 +49,6 @@ jobs:
           echo ""
           echo "Downloaded Files:"
           ls -R
+
+      - name: Approve Bugs
+        run: npx tsx scripts/approve-bugs.ts
