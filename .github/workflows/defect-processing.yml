@@ -5,8 +5,13 @@ on:
     inputs:
       runId:
         description: "Regression Pipeline Run ID"
-        required: true
+        required: false
+        default: "28371891446"
         type: string
+
+  push:
+    branches:
+      - feature/two-pipeline-defect-framework
 
 permissions:
   actions: read
@@ -33,7 +38,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v9
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          run_id: ${{ github.event.inputs.runId }}
+          run_id: ${{ github.event.inputs.runId || '28371891446' }}
           name: regression-artifacts
 
       - name: Print Files
