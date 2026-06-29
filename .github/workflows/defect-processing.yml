@@ -37,9 +37,9 @@ jobs:
       - name: Download Regression Artifacts
         uses: dawidd6/action-download-artifact@v9
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          run_id: ${{ github.event.inputs.runId }}
-          name: regression-artifacts
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            run_id: ${{ github.event.inputs.runId || '28372728117' }}
+            name: regression-artifacts
 
       - name: Print Files
         run: |
