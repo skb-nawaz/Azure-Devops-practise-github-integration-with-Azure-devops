@@ -68,3 +68,4 @@ jobs:
             ADO_PROJECT: ${{ secrets.ADO_PROJECT }}
             ADO_PAT: ${{ secrets.ADO_PAT }}
             DRY_RUN: false  
+            
