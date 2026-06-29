@@ -60,3 +60,11 @@ jobs:
 
       - name: Approve Bugs
         run: npx tsx scripts/approve-bugs.ts
+
+      - name: Create ADO Bugs
+        run: npx tsx scripts/create-ado-bugs.ts
+        env:
+            ADO_ORG: ${{ secrets.ADO_ORG }}
+            ADO_PROJECT: ${{ secrets.ADO_PROJECT }}
+            ADO_PAT: ${{ secrets.ADO_PAT }}
+            DRY_RUN: false  

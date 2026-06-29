@@ -7,59 +7,37 @@ const DRY_RUN = process.env.DRY_RUN === "true";
 
 const bugs = JSON.parse(
   fs.readFileSync(
-    "./candidate-bugs/approved-bugs.json",
+    "./regression-download/candidate-bugs/candidate-bugs.json",
     "utf8",
   ),
 );
 
 console.log("================================");
 console.log("Approved Bugs:", bugs.length);
-console.log(
-  bugs.map((b: any) => b.title),
-);
+console.log(bugs.map((b: any) => b.title));
 console.log("DRY_RUN:", DRY_RUN);
-console.log(
-  "ADO_ORG:",
-  process.env.ADO_ORG,
-);
-console.log(
-  "ADO_PROJECT:",
-  process.env.ADO_PROJECT,
-);
-console.log(
-  "ADO_PAT Exists:",
-  !!process.env.ADO_PAT,
-);
+console.log("ADO_ORG:", process.env.ADO_ORG);
+console.log("ADO_PROJECT:", process.env.ADO_PROJECT);
+console.log("ADO_PAT Exists:", !!process.env.ADO_PAT);
 console.log("================================");
 
 const org = process.env.ADO_ORG!;
 const project = process.env.ADO_PROJECT!;
 const pat = process.env.ADO_PAT!;
 
-const auth = Buffer.from(
-  `:${pat}`,
-).toString("base64");
+const auth = Buffer.from(`:${pat}`).toString("base64");
 
-async function uploadAttachment(
-  filePath: string,
-) {
-  const url =
-    `https://dev.azure.com/${org}/${project}/_apis/wit/attachments?fileName=${path.basename(
-      filePath,
-    )}&api-version=7.1`;
+async function uploadAttachment(filePath: string) {
+  const url = `https://dev.azure.com/${org}/${project}/_apis/wit/attachments?fileName=${path.basename(
+    filePath,
+  )}&api-version=7.1`;
 
-  const response =
-    await axios.post(
-      url,
-      fs.readFileSync(filePath),
-      {
-        headers: {
-          Authorization: `Basic ${auth}`,
-          "Content-Type":
-            "application/octet-stream",
-        },
-      },
-    );
+  const response = await axios.post(url, fs.readFileSync(filePath), {
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/octet-stream",
+    },
+  });
 
   return response.data.url;
 }
@@ -69,8 +47,7 @@ async function attachFileToBug(
   attachmentUrl: string,
   fileName: string,
 ) {
-  const url =
-    `https://dev.azure.com/${org}/${project}/_apis/wit/workitems/${bugId}?api-version=7.1`;
+  const url = `https://dev.azure.com/${org}/${project}/_apis/wit/workitems/${bugId}?api-version=7.1`;
 
   await axios.patch(
     url,
@@ -90,25 +67,17 @@ async function attachFileToBug(
     {
       headers: {
         Authorization: `Basic ${auth}`,
-        "Content-Type":
-          "application/json-patch+json",
+        "Content-Type": "application/json-patch+json",
       },
     },
   );
 }
 
-async function createBug(
-  bug: any,
-) {
-  console.log(
-    `\nProcessing: ${bug.title}`,
-  );
+async function createBug(bug: any) {
+  console.log(`\nProcessing: ${bug.title}`);
 
   try {
-    const duplicates =
-      await findDuplicateBug(
-        bug.title,
-      );
+    const duplicates = await findDuplicateBug(bug.title);
 
     if (duplicates.length) {
       console.log(`
@@ -156,55 +125,30 @@ ${bug.error}
       },
     ];
 
-    const url =
-      `https://dev.azure.com/${org}/${project}/_apis/wit/workitems/$Bug?api-version=7.1`;
+    const url = `https://dev.azure.com/${org}/${project}/_apis/wit/workitems/$Bug?api-version=7.1`;
 
-    const response =
-      await axios.patch(
-        url,
-        body,
-        {
-          headers: {
-            Authorization:
-              `Basic ${auth}`,
-            "Content-Type":
-              "application/json-patch+json",
-          },
-        },
-      );
+    const response = await axios.patch(url, body, {
+      headers: {
+        Authorization: `Basic ${auth}`,
+        "Content-Type": "application/json-patch+json",
+      },
+    });
 
-    const bugId =
-      response.data.id;
+    const bugId = response.data.id;
 
-    console.log(
-      `✅ Bug Created : ${bugId}`,
-    );
+    console.log(`✅ Bug Created : ${bugId}`);
 
-    for (
-      const attachment of
-      bug.attachments || []
-    ) {
+    for (const attachment of bug.attachments || []) {
       try {
-        if (
-          !fs.existsSync(
-            attachment.path,
-          )
-        ) {
-          console.log(
-            `❌ File not found: ${attachment.path}`,
-          );
+        if (!fs.existsSync(attachment.path)) {
+          console.log(`❌ File not found: ${attachment.path}`);
 
           continue;
         }
 
-        console.log(
-          `📤 Uploading [${attachment.browser}] ${attachment.name}`,
-        );
+        console.log(`📤 Uploading [${attachment.browser}] ${attachment.name}`);
 
-        const attachmentUrl =
-          await uploadAttachment(
-            attachment.path,
-          );
+        const attachmentUrl = await uploadAttachment(attachment.path);
 
         await attachFileToBug(
           bugId,
@@ -212,35 +156,25 @@ ${bug.error}
           `${attachment.browser}-${attachment.name}`,
         );
 
-        console.log(
-          `✅ Attached [${attachment.browser}] ${attachment.name}`,
-        );
+        console.log(`✅ Attached [${attachment.browser}] ${attachment.name}`);
       } catch (error: any) {
         console.log(
           `❌ Failed to upload [${attachment.browser}] ${attachment.name}`,
         );
 
-        console.log(
-          error.message,
-        );
+        console.log(error.message);
       }
     }
   } catch (error: any) {
-    console.log(
-      `❌ Error processing ${bug.title}`,
-    );
+    console.log(`❌ Error processing ${bug.title}`);
 
-    console.log(
-      error.message,
-    );
+    console.log(error.message);
   }
 }
 
 (async () => {
   if (!bugs.length) {
-    console.log(
-      "No approved bugs found.",
-    );
+    console.log("No approved bugs found.");
 
     return;
   }
@@ -249,7 +183,5 @@ ${bug.error}
     await createBug(bug);
   }
 
-  console.log(
-    "\nFinished processing all approved bugs.",
-  );
+  console.log("\nFinished processing all approved bugs.");
 })();
