@@ -3,6 +3,15 @@ name: Regression Pipeline
 on:
   workflow_dispatch:
 
+  push:
+    branches:
+      - main
+      - feature/two-pipeline-defect-framework
+
+  pull_request:
+    branches:
+      - main
+
 jobs:
   regression:
     runs-on: ubuntu-latest
